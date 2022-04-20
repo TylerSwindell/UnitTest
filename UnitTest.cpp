@@ -19,13 +19,21 @@ const std::string
     UnitTest::R_T = "\033[0m",
 
 // Labels
-    UnitTest::TESTING = "Testing",
+    UnitTest::TESTING = "Testing:",
     UnitTest::PASSED = "Passed",
     UnitTest::FAILED = "Failed";
 
 UnitTest::UnitTest() { 
     screenSize = 50;
-    padding = 1; 
+    padding = 1;
+    testCount = 0;
+}
+
+UnitTest::UnitTest(bool test) { 
+    screenSize = 50;
+    padding = 1;
+    testCount = 0;
+    if (test) this->componentUnitTest();
 }
 
 void UnitTest::setScreensize(size_t ss) { UnitTest::screenSize = ss; }
@@ -34,38 +42,55 @@ size_t UnitTest::getScreensize() { return UnitTest::screenSize; }
 void UnitTest::setPadding(size_t p) { padding = p; }
 size_t UnitTest::getPadding() { return padding; }
 
+void UnitTest::setTestCount(size_t count) { testCount = count; }
+size_t UnitTest::getTestCount() { return testCount; }
+
 /****************************************************************************************
  * const std::string test => value to be tested
  * const std::string expected => expected result
  ***************************************************************************************/
 template<typename T>
-void UnitTest::testComponent(const T test, const T expected) {
-    int perimeterPadding = (padding * 2) + 2;
+bool UnitTest::testComponent(const T test, const T expected, std::string testDesc) {
+
+    if (!testCount) print('\n' + B_W + TESTING, true);
+    testCount++;
+
+    int perimeterPadding = (this->padding * 2) + 2;
 
     bool result = (test == expected);
     std::string status = result ? PASSED : FAILED;
-    std::string outputText = " || Output:";
+    std::string INPUT = "\nInput:";
+    std::string OUTPUT = "Output:";
+
+    // Text Lengths for each line of output
+    size_t lineOneTextLen = status.length() + TESTING.length();
+    // size_t lineTwoTextLen = INPUT.length() + OUTPUT.length();
 
     // Sets status color
     std::string statusTextColor = result ?  B_BG : B_R;
     std::string statusBGColor = result ?  BG_BG : BG_R;
 
-    int textLengths = status.length() + TESTING.length() - outputText.length();
-    int loadingLength = screenSize - perimeterPadding - textLengths;
+    // Length of all o
+    int loadingLength = this->screenSize - perimeterPadding - lineOneTextLen;
 
-    print(B_W + TESTING + statusTextColor + borderChar);
-    for (size_t i = 0; i < padding; i++) print(R_T + loadingChar);
+    print(B_W + "Test #" + std::to_string(testCount) + statusTextColor + borderChar);
+    for (size_t i = 0; i < this->padding; i++) 
+        print(R_T + loadingChar);
 
     print(statusBGColor);
-    for (int i = 0; i < loadingLength; i++) {
-        std::string loadingMsg = statusTextColor + loadingChar;
-                
-        print(loadingMsg);
-    }
-    for (size_t i = 0; i < padding; i++) print(R_T + loadingChar);
-    std::cout << statusTextColor << borderChar << status;
-    std::cout << " => Input:" << expected;
-    std::cout << " => Output:" << test << R_T + '\n';
+    for (int i = 0; i < loadingLength; i++)
+         print(loadingChar);
+
+    for (size_t i = 0; i < this->padding; i++) 
+        print(R_T + loadingChar);
+
+    std::cout 
+        << statusTextColor << borderChar << status
+        << INPUT << loadingChar << expected << ' ' << borderChar << ' '
+        << OUTPUT << loadingChar << test << '\n';
+    print(testDesc + R_T, true, 2);
+
+    return result;
 }
 
 // Testing Entry Point
@@ -77,8 +102,8 @@ void UnitTest::componentUnitTest() {
     testValueStr = "tyler";
     testComponent<std::string>(testValueStr, "tyler");
 
-    testValueStr = "testing";
-    testComponent<std::string>(testValueStr, "testing");
+    char testValueChar = 'c';
+    testComponent<char>(testValueChar, 'c');
 
     testValueNum = 50;
     testComponent<size_t>(getScreensize(), testValueNum);
@@ -94,7 +119,7 @@ void newLine(size_t count) {
 
     // Will be skipped if no parameters set or user inputs 1 as param
     if (count > 1)
-        for (size_t i = 1; i < count; i++) std::cout << 'n';
+        for (size_t i = 1; i < count; i++) std::cout << '\n';
 
     // Will run a single cout
     std::cout << '\n';

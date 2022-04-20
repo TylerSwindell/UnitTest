@@ -3,6 +3,8 @@
 
 class UnitTest {
 private:
+
+/* Static Member Variables */
 // Foreground Colors
 // Bold Text
     static const std::string B_W;
@@ -25,8 +27,10 @@ private:
     static const std::string PASSED;
     static const std::string FAILED;
 
+
+/* Non-Static Member Variables */
 // Formatting Symbols
-    char borderChar = '|',
+    char borderChar = '|', 
         loadingChar = '\040';
 
     std::string 
@@ -40,9 +44,14 @@ private:
     size_t padding,
         screenSize;
     
+// Keeps track of number of component 
+// tests have been processed
+    size_t testCount;
+
 public:
 
     UnitTest();
+    UnitTest(bool test);
     
     void setScreensize(size_t ss);
     size_t getScreensize();
@@ -50,9 +59,12 @@ public:
     void setPadding(size_t p);
     size_t getPadding();
 
+    void setTestCount(size_t count);
+    size_t getTestCount();
+
     void componentUnitTest();
     template<typename T>
-    void testComponent(const T test, const T expected);
+    bool testComponent(const T test, const T expected, const std::string testDesc = "Add test description here.");
 };
 
 // Count is optional | Defaults: count = 1 
